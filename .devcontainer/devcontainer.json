@@ -1,0 +1,31 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/docker-existing-dockerfile
+{
+	"name": "Pico SDK Dev Container",
+	"image": "ghcr.io/nu-horizonsat/pico-sdk-docker:main@sha256:d4c3a5fbada696df53228411f11ce6238c97717b5256d625eb1bba0739ef1823",
+	"mounts": [
+		{
+			"source": "/dev",
+			"target": "/dev",
+			"type": "bind"
+		}
+	],
+	"customizations": {
+		"vscode": {
+			// Add the IDs of extensions you want installed when the container is created.
+			"extensions": [
+				"ms-vscode.cpptools",
+				"ms-vscode.cpptools-extension-pack",
+				"ms-vscode.cmake-tools",
+				"ms-vscode.makefile-tools",
+				"marus25.cortex-debug",
+				"twxs.cmake",
+				"yzhang.markdown-all-in-one",
+				"aaron-bond.better-comments",
+				"EditorConfig.EditorConfig",
+				"redhat.vscode-yaml",
+				"streetsidesoftware.code-spell-checker"
+			]
+		}
+	}
+}
