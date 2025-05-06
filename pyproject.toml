@@ -1,0 +1,36 @@
+[build-system]
+requires      = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name            = "JupyterPicoSDK"
+version         = "0.0.0"
+description     = "A Jupyter kernel for developing Raspberry‑Pi Pico firmware with the PicoSDK."
+readme          = "README.md"
+authors         = [{name = "Ganesh Danke"}]
+license         = {file = "LICENSE"}
+requires-python = ">=3.9"
+dependencies    = [
+  "ipykernel>=6.0",
+  "pyserial>=3.5"
+]
+
+[project.urls]
+Homepage = "https://github.com/dankeg/JupyterPicoSDK"
+
+[project.scripts]
+pico-kernel          = "JupyterPicoSDK.kernel:main"
+pico-sdk-install-deps = "JupyterPicoSDK.post_install:run_install_script"
+pico-sdk-install-kernel = "JupyterPicoSDK.post_install:_install_kernelspec"
+
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = ["JupyterPicoSDK"]
+include-package-data = true
+
+[tool.setuptools.package-data]
+"JupyterPicoSDK" = [
+  "resources/*.sh",
+  "resources/kernel.json"
+]

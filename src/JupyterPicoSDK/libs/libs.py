@@ -5,7 +5,8 @@ import serial
 from serial.tools import list_ports
 import time
 
-def execute_script(script_name="test.sh", env = None) -> str:
+
+def execute_script(script_name="test.sh", env=None) -> str:
     """Runs script with respect to the root of the project, returning stdout from a successful execution.
 
     Args:
@@ -23,9 +24,9 @@ def execute_script(script_name="test.sh", env = None) -> str:
         completed = subprocess.run(
             ["/bin/bash", script_path],
             cwd=root_dir,
-            capture_output=True, 
-            text=True,            
-            check=True 
+            capture_output=True,
+            text=True,
+            check=True,
         )
         env.log.info(f"Success! {completed}")
     except subprocess.CalledProcessError as e:
@@ -34,6 +35,7 @@ def execute_script(script_name="test.sh", env = None) -> str:
         raise
 
     return completed.stdout
+
 
 def find_pico_port():
     """

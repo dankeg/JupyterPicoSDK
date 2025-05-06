@@ -7,27 +7,27 @@ import time
 from ipykernel.kernelapp import IPKernelApp
 from ipykernel.kernelbase import Kernel
 import serial
+from importlib import resources, files
 
-from pico_kernel.libs import execute_script, find_pico_port
+from src.JupyterPicoSDK.libs.libs import execute_script, find_pico_port
 
 TIMEOUT = 20
 
+
 class PicoKernel(Kernel):
-    implementation = 'pico_kernel'
-    implementation_version = '0.1'
-    language_info = {
-        'name': 'c',
-        'mimetype': 'text/x-csrc',
-        'file_extension': '.c'
-    }
+    implementation = "pico_kernel"
+    implementation_version = "0.1"
+    language_info = {"name": "c", "mimetype": "text/x-csrc", "file_extension": ".c"}
     banner = "Pico Kernel - a custom kernel for Raspberry Pi Pico"
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def do_execute(self, code, silent, store_history=True, user_expressions=None, allow_stdin=False):
+    def do_execute(
+        self, code, silent, store_history=True, user_expressions=None, allow_stdin=False
+    ):
         """Handles execution of a cell in the notebook by a user.
-        
+
         Performs 4 Primary Tasks:
         1. Exports code to a main.c file, serving as the entrypoint.
         2. Uses the docker container to build executable binaries.
@@ -42,16 +42,18 @@ class PicoKernel(Kernel):
         source_path = os.path.join(os.getcwd(), "main.c")
         with open(source_path, "w") as f:
             f.write(code)
-        
+
         final_output = f"Wrote code to {source_path}"
 
         self.log.info("Performing Build!")
 
-        script_output = execute_script("build_code.sh", self)
+        script_path = resources.files("JupyterPicoSDK.resources").joinpath("build_code.sh")
+        script_output = execute_script(str(script_path), self)
 
         self.log.info("Finished Build!")
 
-        script_output = execute_script("load_code.sh", self)
+        script_path = resources.files("JupyterPicoSDK.resources").joinpath("load_code.sh")
+        script_output = execute_script(str(script_path), self)
 
         time.sleep(2)
 
@@ -68,35 +70,32 @@ class PicoKernel(Kernel):
                 while time.time() < end_time:
                     line = ser.readline()
                     if line:
-                        self._stream_message(line.decode(errors='replace'))
+                        self._stream_message(line.decode(errors="replace"))
                         end_time = time.time() + TIMEOUT
         except Exception as e:
             return self._response_error(f"Serial read error: {str(e)}")
 
         return self._response_ok("Finished reading Pico output.")
 
-
     def _response_ok(self, text):
         """Return a standard 'ok' execution result."""
         return {
-            'status': 'ok',
-            'execution_count': self.execution_count,
-            'payload': [],
-            'user_expressions': {},
-            'data': {
-                'text/plain': text
-            }
+            "status": "ok",
+            "execution_count": self.execution_count,
+            "payload": [],
+            "user_expressions": {},
+            "data": {"text/plain": text},
         }
 
     def _response_error(self, text):
         """Return an error execution result."""
         return {
-            'status': 'error',
-            'ename': 'PicoKernelError',
-            'evalue': text,
-            'traceback': [text]
+            "status": "error",
+            "ename": "PicoKernelError",
+            "evalue": text,
+            "traceback": [text],
         }
-    
+
     # --- Comm message stubs ---
     def comm_open(self, stream, ident, parent):
         self.log.info("comm_open called - ignoring for now.")
@@ -109,16 +108,13 @@ class PicoKernel(Kernel):
 
     def _stream_message(self, text):
         self.send_response(
-            self.iopub_socket,
-            'stream',
-            {
-                'name': 'stdout',
-                'text': text
-            }
+            self.iopub_socket, "stream", {"name": "stdout", "text": text}
         )
+
 
 def main():
     IPKernelApp.launch_instance(kernel_class=PicoKernel, log_level=logging.INFO)
+
 
 if __name__ == "__main__":
     main()
